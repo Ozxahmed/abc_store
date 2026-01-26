@@ -112,6 +112,7 @@ Absolutely! Building this database will help you get hands-on experience with:
 - Tables:
   - `states`
   - `cities`
+  - `payment_methods`
 
 ## SQL To Create Schema and Tables
 
