@@ -29,12 +29,12 @@ COMMENT ON TABLE "mapping".states IS 'U.S. states lookup table';
 -- CITIES
 ------------------------------
 CREATE TABLE "mapping".cities (
-    city_id       SERIAL,
-    city_name     VARCHAR(100) NOT NULL,
-    state_id      INT NOT NULL,
+    city_state_id       SERIAL,
+    city_name           VARCHAR(100) NOT NULL,
+    state_id            INT NOT NULL,
     
     CONSTRAINT cities_pkey
-        PRIMARY KEY (city_id),
+        PRIMARY KEY (city_state_id),
     
     CONSTRAINT cities_state_id_fk
         FOREIGN KEY (state_id)

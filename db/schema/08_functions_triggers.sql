@@ -147,7 +147,7 @@ $function$;
 
 
 -------------------------------------------------
--- 1.3 SYNC orders.total_amount FROM order_details
+-- 1.3 ORDER TOTAL SYNC
 -------------------------------------------------
 -- Responsibility:
 --  - After any INSERT / UPDATE / DELETE on sales.order_details,
@@ -198,7 +198,7 @@ $function$;
 --  - Enforce:
 --      * sales.payment.order_id must exist in sales.orders
 --      * payment_date >= order_date
---      * amount must match orders.total_amount exactly
+--      * payment amount must match orders.total_amount exactly
 
 CREATE OR REPLACE FUNCTION public.validate_payment_against_order()
 RETURNS trigger

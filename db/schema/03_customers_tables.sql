@@ -26,13 +26,12 @@ COMMENT ON TABLE customers.customers IS 'Customer name and contact info';
 -- CUSTOMER ADDRESSES
 ------------------------------
 CREATE TABLE customers.customer_addresses (
-    address_id    SERIAL,
-    customer_id   INT NOT NULL,
-    street        VARCHAR(200),
-    city_id       INT NOT NULL,
-    state_id      INT NOT NULL,
-    zip_code      VARCHAR(10) NOT NULL,
-    address_type  VARCHAR(10) NOT NULL,
+    address_id          SERIAL,
+    customer_id         INT NOT NULL,
+    street              VARCHAR(200),
+    city_state_id       INT NOT NULL,
+    zip_code            VARCHAR(10) NOT NULL,
+    address_type        VARCHAR(10) NOT NULL,
 
     CONSTRAINT customer_addresses_pkey
         PRIMARY KEY (address_id),
@@ -42,13 +41,9 @@ CREATE TABLE customers.customer_addresses (
         REFERENCES customers.customers(customer_id)
         ON DELETE CASCADE,
 
-    CONSTRAINT customer_addresses_city_id_fk
-        FOREIGN KEY (city_id)
-        REFERENCES "mapping".cities(city_id),
-
-    CONSTRAINT customer_addresses_state_id_fk
-        FOREIGN KEY (state_id)
-        REFERENCES "mapping".states(state_id),
+    CONSTRAINT customer_addresses_city_state_id_fk
+        FOREIGN KEY (city_state_id)
+        REFERENCES "mapping".cities(city_state_id),
 
     CONSTRAINT address_type_chk
         CHECK (address_type IN ('billing', 'shipping'))

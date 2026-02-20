@@ -1,19 +1,24 @@
 # things to do
 
+- disable triggers and functions in test db
+- refactor python code
+- 
+
 ## Big picture to do
 
 - [ ] dummy project
-  - dockerize
+  - dockerize <-- WIP
+    - adminer - SQL editor
   - readme
-  - load project onto gitlab
-- [ ] gitlab
+  - load project onto github
+- [ ] github
   - set up profile page
 - [ ] linkedin
   - update profile
 
 ## Dockerize to do
 
-- [ ] Folder structure- Create folders with scripts within 12/8
+- [ ] Folder structure- Create folders with scripts within
   - [x] schema (folder + scripts) -> These define structure (schemas, tables, constraints, triggers, functions); No data inserted here.
     - [x] test scripts on test database
   
@@ -45,8 +50,6 @@
 - [ ] Rename pkey col `sales.order_details.order_item_id` to `order_details_id`. This will have to be done in **sql** scripts and **python** scripts.
 
 ### Rough outline
-
-In your README.md, I’d structure it like:
 
 ````md
 # Dummy Company ABC – SQL Practice Environment
@@ -80,8 +83,6 @@ docker compose up -d
 
 ### Manual schema approach within docker container
 
-I’d literally brag about the manual-schema approach in the README:
-
 ```md
 This project is intentionally initialized using hand-written SQL DDL and DML scripts (rather than a pg_dump) so that:
 
@@ -106,34 +107,59 @@ In the README, **explicitly** mention:
 
 That shows you know the ecosystem without burdening the docker-compose file.
 
+### Environment
+
+Python envs managed with Conda (Miniforge) on conda-forge with strict channel priority.
+
+To create:
+
+```bash
+# from project root
+conda env create -f environment.yml
+conda activate stocks
+```
+
+Note to self: Include instructions to recreate environment for users who don't have conda:
+
+provide a requirements.txt for pip users...
+
+```md
+From your conda env, generate a pip requirements file:
+
+# activate your env first
+conda activate abc_store
+
+# generates only Python packages that pip can install
+python -m pip freeze > requirements.txt
+
+
+Then a non-conda user can do:
+
+python -m venv .venv
+source .venv/bin/activate   # (Windows: .venv\Scripts\activate)
+pip install -r requirements.txt
+
+
+Caveat: if your environment relies on compiled system libs (common with psycopg2, numpy, etc.), pip users may need OS-level prerequisites. (Often it still “just works” on macOS/Windows because wheels exist.)
+```
+
 ### Functions/Triggers
 
-I'm going to leave the functions in the **public schema**, and in the sql script a note as to why I'm leaving it in public, and acknowledge that **the cleaner and 'best practices' option would be to add function within the schemas where the related data resides.**
+I'm going to leave the functions in the **public schema**, for the sake of simplicity in this project. However, **the cleaner and 'best practices' option is to add functions within the domain schemas where the related data resides.**
 
-```sql
--- List all non-system functions with their full DDL
-SELECT
-    n.nspname AS schema_name,
-    p.proname AS function_name,
-    pg_get_functiondef(p.oid) AS function_ddl
-FROM pg_proc p
-JOIN pg_namespace n ON n.oid = p.pronamespace
-WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
-  AND p.prokind = 'f'          -- 'f' = function (not agg/procedure)
-ORDER BY n.nspname, p.proname;
+I have the following triggers:
 
-
--- List all triggers
-SELECT
-    event_object_schema AS table_schema,
-    event_object_table  AS table_name,
-    trigger_name,
-    action_timing,        -- BEFORE / AFTER
-    event_manipulation,   -- INSERT / UPDATE / DELETE
-    action_statement
-FROM information_schema.triggers
-ORDER BY table_schema, table_name, trigger_name;
-```
+- `sales.order_details`
+  - **Autofill order details:** For each row inserted, set `item_price` and `line_item_total`:
+    - Fetch `item_price` from `inventory.products.price`
+    - Compute `line_item_total` = item_price * quantity
+  - **Order details, manage stock:** For each row inserted/updated/deleted, stock is updated in `inventory.products.stock_quantity`.
+  - **Order total sync:** For each row inserted/updated/deleted, recompute `sales.orders.total_amount`.
+- `sales.payments`
+  - **Validate payments against orders:** Enforces the following data entegrity:
+    - `sales.payment.order_id` must exist in `sales.orders`
+    - `payment_date` >= `order_date`
+    - Payment amount must match `sales.orders.total_amount`.
 
 ### Possible future expansions/improvements
 
@@ -180,6 +206,13 @@ Longer-term, this could be extended to:
 
 - A **single global audit table** for all tables in the database.
 - Integration with **pgAudit** or **logical decoding / CDC** tools (e.g. Debezium) to stream changes out of Postgres into a data lake or event bus.
+
+#### CSV Test/check
+
+- Run tests on CSV once they're generated. Check for:
+  - correct headers
+  - number of rows
+  - check Nulls
 
 ### Database design
 
