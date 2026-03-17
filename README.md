@@ -98,13 +98,49 @@ That tells them:
 
 ### SQL client for container
 
-Start with **Adminer**.
+```md
 
-In the README, **explicitly** mention:
+There is one markdown fence issue if pasted exactly into a larger README section, so here is a safer version without nested fencing:
 
-- “You can also connect with any external SQL client (DBeaver, psql, DataGrip, pgAdmin, etc.) using these connection details…”
+```md
+## Environment Variables
 
-That shows you know the ecosystem without burdening the docker-compose file.
+This project uses a `.env` file for local Docker/PostgreSQL configuration.
+
+1. Copy the example file:
+   `cp .env.example .env`
+
+2. Review the values in `.env` before starting the containers.
+
+### Notes
+
+- The example credentials in `.env.example` are intended for **local development/demo use only**.
+- They are included to make the project easy to run out of the box.
+- Do **not** use these credentials for any internet-exposed or production deployment.
+- If you deploy this project outside a local machine, change the database username/password and review your network exposure settings.
+
+### Local client connection settings
+
+You can use the `DB_*` values in tools such as DBeaver, `psql`, or Python scripts when connecting from your host machine.
+
+Typical local connection values:
+
+- Host: `localhost`
+- Port: `5432`
+- Database: `abc_store`
+- Username: `postgres`
+- Password: `postgres`
+
+### Adminer connection
+
+If connecting through Adminer, use:
+
+- System: `PostgreSQL`
+- Server: `postgres`
+- Username: `postgres`
+- Password: `postgres`
+- Database: `abc_store`
+```
 
 ### Environment
 
