@@ -1,9 +1,5 @@
 # things to do
 
-- disable triggers and functions in test db
-- refactor python code
-- 
-
 ## Big picture to do
 
 - [ ] dummy project
@@ -22,10 +18,13 @@
   - [x] schema (folder + scripts) -> These define structure (schemas, tables, constraints, triggers, functions); No data inserted here.
     - [x] test scripts on test database
   
-  - [ ] /scripts/python (folder + scripts) -> python scripts for generating the fake data. This will not run, and is just there to show the script to generate the data.
-    - [ ] test script against test db, to make sure the python code has all the correct columns, etc.
+  - [x] /scripts/python (folder + scripts) -> python scripts for generating the fake data. This will not run, and is just there to show the script to generate the data.
+    - [x] test script against test db, to make sure the python code has all the correct columns, etc.
   
   - [ ] data (folder + scripts) -> These are INSERT (or COPY) scripts that populate the DB with the dummy data. This is the snapshot of the data produced by the python code, which is stored in in the `scripts` folder. The python code is just there to show what was done to generate the data, it won't be ran when running the docker container. Instead the snapshot (the data) will be uploaded once the schema is built.
+    - [ ] when importing csv files:
+      - [ ] always use hearders
+      - [ ] order by primary key
 
 - [ ] docker init- 'init.sql' or '/docker-entrypoint-initdb.d'? -> Docker runs on first startup
   - [ ] test sql scripts with adminer
