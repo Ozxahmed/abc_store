@@ -1,262 +1,625 @@
-# things to do
+# ABC Store
 
-## Big picture to do
+## Table of Contents
 
-- [ ] dummy project
-  - dockerize <-- WIP
-    - adminer - SQL editor
-  - readme
-  - load project onto github
-- [ ] github
-  - set up profile page
-- [ ] linkedin
-  - update profile
+1. [🚀 Project Overview + Quick Start](#project-overview--quick-start)
+   - [What this project is](#what-this-project-is)
+   - [Purpose](#purpose)
+   - [What this project showcases](#what-this-project-showcases)
+   - [Quick Start for SQL Practice](#quick-start-for-sql-practice)
 
-## Dockerize to do
+2. [🧱 System Overview](#system-overview)
+   - [Tech Stack](#tech-stack)
+   - [Key Features](#key-features)
+   - [Repository Structure](#repository-structure)
+   - [Database Architecture](#database-architecture)
+   - [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
 
-- [ ] Folder structure- Create folders with scripts within
-  - [x] schema (folder + scripts) -> These define structure (schemas, tables, constraints, triggers, functions); No data inserted here.
-    - [x] test scripts on test database
-  
-  - [x] /scripts/python (folder + scripts) -> python scripts for generating the fake data. This will not run, and is just there to show the script to generate the data.
-    - [x] test script against test db, to make sure the python code has all the correct columns, etc.
-  
-  - [ ] data (folder + scripts) -> These are INSERT (or COPY) scripts that populate the DB with the dummy data. This is the snapshot of the data produced by the python code, which is stored in in the `scripts` folder. The python code is just there to show what was done to generate the data, it won't be ran when running the docker container. Instead the snapshot (the data) will be uploaded once the schema is built.
-    - [ ] when importing csv files:
-      - [ ] always use hearders
-      - [ ] order by primary key
+3. [⚙️ Data Pipeline & Design Philosophy](#data-pipeline--design-philosophy)
+   - [Initialization Workflow](#initialization-workflow)
+   - [Design Philosophy](#design-philosophy)
+   - [Schema Design and Handwritten SQL](#schema-design-and-handwritten-sql)
+   - [Python Data Generation Workflow](#python-data-generation-workflow)
+   - [CSV Seeding Strategy](#csv-seeding-strategy)
+   - [Circular Foreign Key Handling](#circular-foreign-key-handling)
 
-- [ ] docker init- 'init.sql' or '/docker-entrypoint-initdb.d'? -> Docker runs on first startup
-  - [ ] test sql scripts with adminer
-  - [ ] (Optional) seeding service to run python scripts inside docker
+4. [🧩 Database Logic](#database-logic)
+   - [Business Rules Overview](#business-rules-overview)
+   - [Triggers](#triggers)
+   - [Constraints](#constraints)
+   - [Indexing Strategy](#indexing-strategy)
 
-- [ ] test sql scripts with adminer
-- [ ] (Optional) seeding service to run python scripts inside docker
+5. [🧠 SQL Practice Curriculum](#sql-practice-curriculum)
+   - [Curriculum Overview](#curriculum-overview)
+   - [Learning Modules](#learning-modules)
+   - [Real-World SQL Problems](#real-world-sql-problems)
+   - [Data Quality Checks](#data-quality-checks)
+   - [Performance Tuning with EXPLAIN](#performance-tuning-with-explain)
 
-## README to do
+6. [🔮 Future Improvements](#future-improvements)
 
-- [ ] Project overview and goals
-- [ ] Folder structure and data flow explanation
-- [ ] To-do list / roadmap for future improvements
-- [ ] Add **ERD diagram** to visualize schema
-- [ ] Add section for **Advanced SQL queries**
-  - Suggested formats:
-    - `queries.md` (Markdown file with annotated SQL)
-    - or `queries.ipynb` (Jupyter notebook showing outputs)
+## Project Overview + Quick Start
 
-## (optional) to do
+### What this project is
 
-- [ ] Rename pkey col `sales.order_details.order_item_id` to `order_details_id`. This will have to be done in **sql** scripts and **python** scripts.
+ABC Store is a realistic, multi-schema PostgreSQL database project built to simulate a small business environment for hands-on SQL practice, featuring realistic business domains- customers, sales, inventory, employees, analytics
 
-### Rough outline
+It is packaged with Docker for consistent local setup, and includes a relational database designed for querying, analysis, and database design exploration, and a structured SQL practice curriculum.
 
-````md
-# Dummy Company ABC – SQL Practice Environment
+### Purpose
 
-## Overview
-- Purpose of the project
-- Tech stack: PostgreSQL, Docker, Adminer
+- Create a practical SQL learning environment using a realistic relational database.
+- Showcase core data engineering principles such as data modeling, 3NF normalization, data integrity, reproducible setup, modular design for maintainability, indexing, and clear error handling with informative messages.
 
-## Database Structure
-- Schemas: customers, employees, inventory, mapping, sales, analytics
-- Brief description of each schema & main tables
-- Mention triggers (stock update, order totals, etc.)
+### What this project showcases
 
-## How to Run
+- **Data modeling** through a structured multi-schema PostgreSQL design.
+- **3NF normalization** to reduce redundancy and improve data integrity.
+- **Data engineering principles** through reproducible database initialization, seed workflows, and environment portability with Docker.
+- **Modularity** for maintainability by separating schema creation, seed generation, seed loading, and business logic into distinct parts.
+- **Data integrity enforcement** using primary keys, foreign keys, constraints, functions, and triggers.
+- **Performance awareness** through index usage and query optimization considerations.
+- **Error handling with clear messages** in Python and database workflows to make debugging easier and setup more reliable.
+- **A realistic SQL practice environment** for joins, aggregations, subqueries, CTEs, and other intermediate-to-advanced querying patterns.
+
+### Quick Start for SQL Practice
+
+If your goal is to start querying right away, follow the steps below.
+
+#### 1. Install Docker
+
+- Download and install **Docker Desktop**[/https://www.docker.com/products/docker-desktop/].
+- Open Docker Desktop after installation.
+- Confirm Docker is running before starting the project.
+
+> This project runs through Docker containers, so Docker must be installed before starting the database.
+
+#### 2. Start the Project
+
+From project root, run:
 
 ```bash
-git clone <repo>
-cd dummy_company_abc
-docker compose up -d
+docker compose up --build
 ```
 
-- How to access Adminer (<http://localhost:8080>)
-- Connection details (user, pass, db)
+What This Command Does:
 
-## SQL Practice Phases
+- Starts a **PostgreSQL** database in Docker.
+- Loads the database **schema**.
+- Seeds the database with **sample data**.
+- Creates **functions, triggers, and indexes**.
+- Starts **Adminer** for browser-based SQL access.
 
-- Step 1: intermediate SQL (joins, filters, group by)
-- Step 2: advanced SQL (CTEs, window functions, etc.)
-- Step 3: analytics & staging tables
-````
+#### 4. Access the Database
 
-### Manual schema approach within docker container
+##### Option A: Adminer
 
-```md
-This project is intentionally initialized using hand-written SQL DDL and DML scripts (rather than a pg_dump) so that:
+Open in your browser: [http://localhost:8080](http://localhost:8080)
 
-- the database structure (schemas, tables, constraints, triggers, functions, and indexes) is fully transparent and reviewable, and
+Use these login settings:
 
-- the data generation logic (Python scripts under scripts/python) is separated from the final seed SQL, making it easy to reason about both modeling and ETL.
+- **System:** PostgreSQL
+- **Server:** db
+- **Username:** postgres
+- **Password:** postgres
+- **Database:** abc_store
+
+##### Option B: SQL Client
+
+Use any SQL client such as **DBeaver**.
+
+**Connection settings:**
+
+- **Host:** localhost
+- **Port:** 5432
+- **Database:** abc_store
+- **Username:** postgres
+- **Password:** postgres
+
+#### 5. Stop the Project
+
+**Stop container(s):**
+
+```bash
+docker compose down
 ```
 
-That tells them:
+**Stop container(s) and remove persisted data:**
 
-- you care about transparency,
-- you understand schema vs data,
-- you know how to structure a maintainable data project repo.
+```bash
+docker compose down -v
+```
 
-### SQL client for container
+#### 6. Start Practicing SQL
 
-```md
-
-There is one markdown fence issue if pasted exactly into a larger README section, so here is a safer version without nested fencing:
-
-```md
-## Environment Variables
-
-This project uses a `.env` file for local Docker/PostgreSQL configuration.
-
-1. Copy the example file:
-   `cp .env.example .env`
-
-2. Review the values in `.env` before starting the containers.
+A [SQL Practice Curriculum](#sql-practice-curriculum) is included with this repo.
 
 ### Notes
 
-- The example credentials in `.env.example` are intended for **local development/demo use only**.
-- They are included to make the project easy to run out of the box.
-- Do **not** use these credentials for any internet-exposed or production deployment.
-- If you deploy this project outside a local machine, change the database username/password and review your network exposure settings.
+- This project is intended for **local learning** and portfolio demonstration.
+- Default credentials are kept simple for quick local setup.
+- **Do not** use these credentials in any production or internet-exposed environment.
 
-### Local client connection settings
+## System Overview
 
-You can use the `DB_*` values in tools such as DBeaver, `psql`, or Python scripts when connecting from your host machine.
+This section gives a fast orientation to how the project is built and what it demonstrates.
 
-Typical local connection values:
+### Tech Stack
 
-- Host: `localhost`
-- Port: `5432`
-- Database: `abc_store`
-- Username: `postgres`
-- Password: `postgres`
+- **SQL** for schema design, constraints, triggers, functions, and indexing
+- **PostgreSQL** for the relational database
+- **Python** for dummy data generation and seed export workflows
+- **Docker** for containerized setup
+- **Docker Compose** for multi-container orchestration
+- **Adminer** for browser-based database access
+- **CSV seed files** for reproducible database initialization
 
-### Adminer connection
+### Key Features
 
-If connecting through Adminer, use:
+- **Multi-schema database design** to organize data by business domain
+- **3NF normalization** to reduce redundancy and improve data integrity
+- **Dockerized setup** for consistent local deployment
+- **Seeded relational data** for realistic SQL practice
+- **Business logic in the database** using functions and triggers
+- **Indexing strategy** to support performance-aware querying
+- **Modular project structure** for maintainability and clarity
+- **Error handling with clear messages** in Python setup workflows
+- **Adminer access** for quick browser-based querying
 
-- System: `PostgreSQL`
-- Server: `postgres`
-- Username: `postgres`
-- Password: `postgres`
-- Database: `abc_store`
+### Repository Structure
+
+```text
+project-root/
+├── abc_store/           # Python toolkit for data generation, export, validation, and utilities
+├── db/init              # Container initialization script run during first-time database setup
+├── notebooks/           # Development and exploratory notebooks used during project buildout
+├── scripts/             # Lightweight orchestration scripts
+├── sql/                 # SQL files for schemas, tables, functions, triggers, and indexes
+├── seed_data/           # CSV seed files loaded into PostgreSQL
+├── docker-compose.yml   # Container orchestration
+├── Dockerfile           # Optional custom image build steps
+├── Makefile             # Common local commands
+├── .env.example         # Example environment variables
+└── README.md            # Project documentation
 ```
 
-### Environment
+### Database Architecture
 
-Python envs managed with Conda (Miniforge) on conda-forge with strict channel priority.
+The database is organized into multiple schemas to reflect separate business domains and support realistic relational querying.
 
-To create:
+Current schemas and tables:
 
-```bash
-# from project root
-conda env create -f environment.yml
-conda activate stocks
-```
+mapping/
+├── states
+├── cities
+└── payment_methods
 
-Note to self: Include instructions to recreate environment for users who don't have conda:
+customers/
+├── customers
+└── customer_addresses
 
-provide a requirements.txt for pip users...
+inventory/
+├── products
+├── suppliers
+└── shipments
 
-```md
-From your conda env, generate a pip requirements file:
+sales/
+├── orders
+├── order_details
+└── payments
 
-# activate your env first
-conda activate abc_store
+employees/
+├── employees
+└── departments
 
-# generates only Python packages that pip can install
-python -m pip freeze > requirements.txt
+analytics/
+├── monthly_sales
+└── product_performance
 
+**This structure helps demonstrate:**
 
-Then a non-conda user can do:
+- Domain-based organization
+- Relational modeling across schemas
+- Foreign key relationships between business entities
+- More realistic SQL querying than a single flat schema
 
-python -m venv .venv
-source .venv/bin/activate   # (Windows: .venv\Scripts\activate)
-pip install -r requirements.txt
+### Entity Relationship Diagram (ERD)
 
+The ERD provides a visual overview of:
 
-Caveat: if your environment relies on compiled system libs (common with psycopg2, numpy, etc.), pip users may need OS-level prerequisites. (Often it still “just works” on macOS/Windows because wheels exist.)
-```
+- Tables across each schema
+- Primary keys
+- Foreign keys
+- Relationships between core business entities
 
-### Functions/Triggers
+![ABC Store ERD](assets/abc_store_final_erd.png)
 
-I'm going to leave the functions in the **public schema**, for the sake of simplicity in this project. However, **the cleaner and 'best practices' option is to add functions within the domain schemas where the related data resides.**
+## Data Pipeline & Design Philosophy
 
-I have the following triggers:
+This section explains how the database is initialized, how seed data is produced, and why the project was structured this way.
 
-- `sales.order_details`
-  - **Autofill order details:** For each row inserted, set `item_price` and `line_item_total`:
-    - Fetch `item_price` from `inventory.products.price`
-    - Compute `line_item_total` = item_price * quantity
-  - **Order details, manage stock:** For each row inserted/updated/deleted, stock is updated in `inventory.products.stock_quantity`.
-  - **Order total sync:** For each row inserted/updated/deleted, recompute `sales.orders.total_amount`.
-- `sales.payments`
-  - **Validate payments against orders:** Enforces the following data entegrity:
-    - `sales.payment.order_id` must exist in `sales.orders`
-    - `payment_date` >= `order_date`
-    - Payment amount must match `sales.orders.total_amount`.
+### Initialization Workflow
 
-### Possible future expansions/improvements
+The database is initialized in a deliberate sequence so that dependencies, business logic, and circular relationships are handled cleanly.
 
-#### Shipping details + purchasing system
+Initialization order:
 
-my prompt:
+1. Create schemas  
+2. Create tables  
+3. Load seed data  
+4. Create functions and triggers  
+5. Apply circular foreign key updates  
 
-```md
-I think I'm being OCD now, but I feel like we need more details on shipments, as in what products are being shipped within each shipment, also maybe a mechanism for tracking product prices. The workflow I'm thinking is: suppliers provide product quotes --> record this within the database --> then we issue a purchase order to the supplier --> record this --> Supplier ships --> we record this.
-```
+This workflow helps ensure:
 
-ChatGPT:
+- Tables exist before data is loaded
+- Seed data loads in dependency-aware order
+- Business logic is applied after base data is in place
+- Circular relationships are resolved without breaking initialization
 
-```md
-Yeah, that “this could be more realistic…” voice in your head is the data-modeling brain turning on 😂
-You’re right: quotes → POs → shipments → shipment line items → price history is how a real system would evolve… but that’s also exactly how a nice clean practice DB turns into a mini-ERP and eats your entire weekend.
+### Design Philosophy
 
-For this project’s goals (SQL practice + portfolio + dockerized demo), I’d say:
+The project was designed to be both a practical SQL sandbox and a small end-to-end data system.
 
-✅ Keep shipments simple in v1, and
-✅ Park quotes/POs/price history as a “v2 enhancements” section in your README.
+Core design choices:
 
-You can even brag there: “Here’s how I’d extend this toward a purchasing system in the future.”
-```
+- Use **handwritten SQL** for transparency and control
+- Keep **schema design**, **data generation**, and **seed loading** separate
+- Make the environment **reproducible** through Docker and CSV seeding
+- Prioritize **modularity for maintainability**
+- Include **error handling with clear messages** to make setup and debugging easier
+- Build around realistic relational patterns instead of simplified toy examples
 
-#### Audit Logging
+The goal was not just to populate tables, but to build a system that reflects core data engineering principles such as data modeling, integrity enforcement, reproducibility, and structured initialization.
 
-One future enhancement I’d like to add is a dedicated **`log` schema** for audit logging. The idea is to keep a change history for important tables (e.g. `sales.orders`, `sales.order_details`, `sales.payments`) using **row-level triggers**:
+### Schema Design and Handwritten SQL
 
-- Add **per-table log tables** such as `log.order_details_changes`.
-- Each log record would capture:
-  - The table and primary key of the row that changed.
-  - The operation type (`INSERT`, `UPDATE`, or `DELETE`).
-  - Timestamps and (optionally) which user performed the change.
-  - A JSON snapshot of the **old** row, the **new** row, and a list of **changed columns**.
-- A `BEFORE`/`AFTER` trigger on each base table would write a log row whenever data is inserted, updated, or deleted.
+The schema and table definitions are written by hand rather than generated from a raw database dump.
 
-This would make it easy to answer questions like:
+This approach makes the project easier to:
 
-- “Who changed this order and what exactly changed?”
-- “What was the previous stock quantity for this product?”
+- Read
+- Review
+- Maintain
+- Explain in interviews
+- Extend over time
 
-Longer-term, this could be extended to:
+It also keeps the initialization flow intentional, with separate SQL files for:
 
-- A **single global audit table** for all tables in the database.
-- Integration with **pgAudit** or **logical decoding / CDC** tools (e.g. Debezium) to stream changes out of Postgres into a data lake or event bus.
+- Schema creation
+- Table creation
+- Seed loading
+- Functions and triggers
+- Post-load relationship fixes
 
-#### CSV Test/check
+### Python Data Generation Workflow
 
-- Run tests on CSV once they're generated. Check for:
-  - correct headers
-  - number of rows
-  - check Nulls
+Python is used to generate realistic dummy data before that data is exported into CSV seed files.
 
-### Database design
+This workflow allows the project to separate:
 
-#### Indexing
+- **Data creation logic** from
+- **Database initialization logic**
 
-#### Triggers
+Benefits of this approach:
 
-### SQL Exercises
+- Data generation code is easier to test and adjust
+- Seed files can be reused without rerunning generation every time
+- The Docker setup stays focused on loading an existing dataset
+- The project shows both database design and supporting pipeline logic
 
-Question ideas:
+The Python portion of the project also reflects software engineering practices such as modularity, reuse, and readable error handling.
 
-- How many customers have different shipping addresses that are different from their billing address.
+### CSV Seeding Strategy
+
+Seed data is loaded from CSV files rather than being inserted row-by-row during container startup.
+
+Why CSV seeding was used:
+
+- It makes initialization more reproducible
+- It keeps the Docker startup flow simpler
+- It separates one-time data generation from repeated database setup
+- It is easier to inspect and validate seed inputs
+- It mirrors a lightweight batch-loading workflow
+
+In this design:
+
+- Python generates and exports the seed data
+- PostgreSQL loads the CSV files during initialization
+- The seeded database can be recreated consistently across environments
+
+### Circular Foreign Key Handling
+
+One part of the schema includes a circular relationship between employees and departments.
+
+Specifically:
+
+- Employees belong to departments
+- Departments reference a manager
+- That manager is also an employee
+
+To handle this cleanly, the relationship is resolved in a later step rather than during the first table load.
+
+Approach used:
+
+1. Create the related tables  
+2. Load the base department and employee records  
+3. Apply a post-load update to connect department managers  
+
+This avoids initialization failures while still preserving the intended relational design.
+
+It also reflects a real-world database concern: sometimes schema relationships are valid, but they must be loaded in stages.
+
+## Database Logic
+
+This section highlights the business rules built into the database to help maintain accuracy, consistency, and realistic system behavior.
+
+### Business Rules Overview
+
+The project includes database-level logic to simulate how a real transactional system enforces core rules beyond simple table structure.
+
+These rules help ensure that:
+
+- Order details are populated consistently
+- Inventory is adjusted when order activity occurs
+- Order totals stay aligned with line items
+- Payments match the corresponding order amounts
+- Relational data remains valid through constraints and foreign keys
+- Query performance is supported through targeted indexing
+
+This logic helps move the project beyond static table design and into real system behavior.
+
+### Triggers
+
+The database uses functions and triggers to automate key parts of transactional logic.
+
+Current trigger-driven workflows include:
+
+- **Autofill order details** to populate dependent values when needed
+- **Stock management** to update inventory levels based on order activity
+- **Order total synchronization** to keep order totals aligned with related line items
+- **Payment validation** to ensure payment amounts match the corresponding order totals
+
+These triggers help enforce consistency at the database level rather than relying entirely on external application code.
+
+### Constraints
+
+Constraints are used throughout the database to protect data integrity and enforce valid relationships.
+
+These include:
+
+- **Primary keys** to uniquely identify records
+- **Foreign keys** to maintain valid relationships across schemas
+- **Not-null constraints** for required fields
+- **Check constraints** where appropriate to restrict invalid values
+
+This helps ensure that the database structure itself prevents many common data issues before they can enter the system.
+
+### Indexing Strategy
+
+Indexes are used on selected columns to support more efficient querying and reinforce performance-aware database design.
+
+The indexing strategy is intended to:
+
+- Improve lookup and join performance on commonly queried fields
+- Support realistic SQL practice with performance considerations in mind
+- Demonstrate the tradeoff between faster reads and added write overhead
+
+This section of the project is meant to show not just how queries are written, but how database design choices can affect query performance.
+
+## SQL Practice Curriculum
+
+This project is designed to be more than a database build. It is also a structured SQL practice environment built around realistic business data and progressively harder query patterns.
+
+### Curriculum Overview
+
+The curriculum is organized to move from foundational querying to more advanced analytical and performance-focused SQL.
+
+Progression:
+
+1. Foundations  
+2. Joins  
+3. Aggregation  
+4. Subqueries  
+5. CTEs  
+6. Window Functions  
+7. Set Operations and `CASE`  
+8. Performance and Indexing  
+9. Capstone Challenges  
+
+The goal is to build repeatable practice with increasing difficulty while reinforcing query clarity, data quality checks, and performance awareness.
+
+### Learning Modules
+
+#### 1. Foundations
+
+Focus areas:
+
+- Basic `SELECT`, `WHERE`, and `ORDER BY`
+- Foreign key awareness across related tables
+- Date/time functions
+- Type casting
+- Arithmetic and derived columns
+
+Example practice:
+
+- Newest customers added
+- Orders placed in the last 7 days
+- Basic calculated fields from transactional tables
+
+#### 2. Joins
+
+Focus areas:
+
+- `INNER JOIN`
+- `LEFT JOIN`
+- `RIGHT JOIN`
+- `FULL JOIN`
+- Anti-join patterns using `LEFT JOIN ... IS NULL`
+- Anti-join patterns using `NOT EXISTS`
+
+Example practice:
+
+- Customers and their orders
+- Products and related order activity
+- Suppliers with no recent shipments
+- Customers with no purchase history
+
+#### 3. Aggregation
+
+Focus areas:
+
+- `GROUP BY`
+- `HAVING`
+- Multi-level grouping
+- Summary KPI queries
+
+Example practice:
+
+- Revenue by day, week, and month
+- Average order value
+- Repeat vs. new customers
+- Supplier- or product-level sales summaries
+
+#### 4. Subqueries
+
+Focus areas:
+
+- Subqueries in `WHERE`
+- Subqueries in `FROM`
+- Correlated subqueries
+- Semi-joins and anti-joins
+
+Example practice:
+
+- Top customers by spend
+- Entities with no recent activity
+- Products above average sales thresholds
+- Top-N per group patterns
+
+#### 5. CTEs
+
+Focus areas:
+
+- Replacing deeply nested subqueries
+- Building multi-step query pipelines
+- Improving readability for complex logic
+
+Example practice:
+
+- Staged filtering and aggregation
+- Multi-step order and revenue summaries
+- Reusable intermediate calculations
+
+#### 6. Window Functions
+
+Focus areas:
+
+- `ROW_NUMBER`
+- `RANK`
+- `DENSE_RANK`
+- `NTILE`
+- `LAG` / `LEAD`
+- Running totals
+- Moving averages
+
+Example practice:
+
+- Top products per category
+- Month-over-month sales changes
+- Ranked customers by spend
+- Rolling revenue trends
+
+#### 7. Set Operations and `CASE`
+
+Focus areas:
+
+- `UNION`
+- `UNION ALL`
+- `INTERSECT`
+- `EXCEPT`
+- `CASE WHEN` for flags, tiers, and bucketing
+
+Example practice:
+
+- Customer tiering
+- Order value segmentation
+- Combining historical result sets
+- Flagging repeat customers or churn-risk groups
+
+#### 8. Performance and Indexing
+
+Focus areas:
+
+- Reading query plans with `EXPLAIN`
+- Using `EXPLAIN ANALYZE`
+- Understanding access paths
+- Evaluating when indexes help
+- Comparing before/after query performance
+
+Example practice:
+
+- Tune slow join queries
+- Compare indexed vs. non-indexed filtering
+- Test composite index impact on reporting queries
+
+#### 9. Capstone Challenges
+
+Capstone exercises combine multiple concepts into larger business-style problems.
+
+Example capstones:
+
+- Rolling 28-day revenue and month-over-month growth
+- Top products by category with tie-safe ranking
+- Repeat customer rate and churn candidates
+- Shipment cycle times and stockout risk
+- Headcount trends and span-of-control analysis
+
+### Real-World SQL Problems
+
+The curriculum is designed around realistic business questions rather than isolated syntax drills.
+
+Examples include:
+
+- Which customers have not placed an order recently?
+- Which products generate the most revenue?
+- Which suppliers have open shipment gaps?
+- Which departments have grown or shrunk over time?
+- Which queries become faster after indexing?
+
+This makes the project useful both for SQL practice and for demonstrating analytical thinking on top of a relational system.
+
+### Data Quality Checks
+
+Data quality checks are integrated into SQL practice rather than treated as a separate topic.
+
+Common checks include:
+
+- Missing foreign key relationships
+- Unexpected null values
+- Duplicate records
+- Mismatched order totals
+- Invalid payment or shipment patterns
+
+This reinforces the habit of validating data before trusting query outputs.
+
+### Performance Tuning with EXPLAIN
+
+Performance tuning is part of the later curriculum to encourage query optimization habits, not just query correctness.
+
+Key practices include:
+
+- Using `EXPLAIN` to inspect execution plans
+- Using `EXPLAIN ANALYZE` to compare actual execution behavior
+- Testing indexes against real query patterns
+- Reviewing tradeoffs between readability and speed
+
+This helps connect SQL writing with practical database performance thinking.
+
+## Future Improvements
+
+Potential future additions include:
+
+- Adding more advanced SQL practice challenges and performance exercises
+- Extending the analytics layer with additional reporting tables or dashboard outputs
+- Exploring audit logging for change tracking in transactional tables
