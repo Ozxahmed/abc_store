@@ -189,6 +189,7 @@ The database is organized into multiple schemas to reflect separate business dom
 
 Current schemas and tables:
 
+```text
 mapping/
 ├── states
 ├── cities
@@ -215,6 +216,7 @@ employees/
 analytics/
 ├── monthly_sales
 └── product_performance
+```
 
 **This structure helps demonstrate:**
 
